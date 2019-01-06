@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
 	"net/http"
 	"os"
@@ -30,6 +31,7 @@ func main() {
 
 	// Create new file and write seed key to file
 	{
+		fmt.Printf("%s \n", issuerKeypair.Address())
 		_, err := w.WriteString(issuerKeypair.Seed())
 		check(err)
 		check(w.Flush())
@@ -58,8 +60,36 @@ func main() {
 
 	}
 
+	// Create Distributor account
+	distributorKeypair, err := keypair.Random()
+	fmt.Println(distributorKeypair.Address())
+	{
+		testNetClient := horizon.DefaultTestNetClient
 
+		// Create new account Tx, using Issuer account
+		tx, err := build.Transaction(
+			build.SourceAccount{AddressOrSeed: issuerKeypair.Address()},
+			build.TestNetwork,
+			build.AutoSequence{SequenceProvider: horizon.DefaultTestNetClient},
+			build.CreateAccount(
+				build.Destination{
+					AddressOrSeed: distributorKeypair.Address(),
+				},
+				// This mean XLM
+				build.NativeAmount{
+					Amount: "100",
+				},
+			),
+		)
+		check(err)
+		txe, err := tx.Sign(issuerKeypair.Seed())
+		check(err)
+		txeB64, err := txe.Base64()
+		check(err)
+		resp, err := testNetClient.SubmitTransaction(txeB64)
+		check(err)
 
-
+		fmt.Println(resp.Ledger)
+	}
 
 }
