@@ -21,3 +21,10 @@
   - เริ่มต้น ร่วมกันสร้าง Issuer และ Custom Asset เพื่อใช้ร่วมกัน
   - สร้าง Transaction เพื่อส่ง Asset ภายในระบบ
   - สร้าง Transaction เพื่อส่ง Asset ข้ามระบบ
+
+
+# Equipment !
+- คอมพิวเตอร์ที่ติดตั้งระบบปฎิบัติการ Windows, Linux หรือ MacOS
+- ติดตั้ง NodeJS เวอร์ชั่น ^10 https://nodejs.org/en/
+- ติดตั้ง Golang เวอร์ชั่น ^1.10 https://golang.org/
+- ติดตั้ง Git client หรือ Git commandline (ถ้า windows แนะนำให้ใช้ Sourcetree หรือ Git Bash)
