@@ -96,10 +96,11 @@ func main() {
 		fmt.Printf("Create distributor account: %s\n", resp.Hash)
 	}
 
+	octofox201 := build.CreditAsset("OCTOFOXTG201", issuerKeypair.Address())
 	{
 
 		// Create Custom Asset
-		octofox201 := build.CreditAsset("OCTOFOXTG201", issuerKeypair.Address())
+
 		// Trust Issuer line
 		tx, err := build.Transaction(
 			build.SourceAccount{
@@ -107,11 +108,14 @@ func main() {
 			},
 			build.AutoSequence{horizon.DefaultTestNetClient},
 			build.TestNetwork,
-			build.Trust(octofox201.Code, octofox201.Issuer, build.Limit("30")),
+			build.Trust(octofox201.Code, octofox201.Issuer, build.Limit("40")),
 		)
+
 		check(err)
 		txe, err := tx.Sign(distributorKeypair.Seed())
+		check(err)
 		txe64, err := txe.Base64()
+		check(err)
 		resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txe64)
 		check(err)
 
@@ -121,6 +125,34 @@ func main() {
 
 	{
 		// Issuer transfer custom asset to distributor
+
+		tx, err := build.Transaction(
+			build.SourceAccount{
+				AddressOrSeed: issuerKeypair.Seed(),
+			},
+			build.AutoSequence{horizon.DefaultTestNetClient},
+			build.TestNetwork,
+			build.Payment(
+				build.Destination{
+					AddressOrSeed: distributorKeypair.Address(),
+				},
+				build.CreditAmount{
+					Code:   octofox201.Code,
+					Issuer: issuerKeypair.Address(),
+					Amount: "40",
+				},
+			),
+		)
+
+		check(err)
+		txe, err := tx.Sign(issuerKeypair.Seed())
+		check(err)
+		txe64, err := txe.Base64()
+		check(err)
+		resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txe64)
+		check(err)
+		fmt.Println(resp.Hash)
+
 	}
 
 }
