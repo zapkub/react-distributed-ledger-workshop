@@ -2,3 +2,7 @@ node_modules
 vendor
 key
 .idea
+*.js
+*.js.map
+config.json
+.next

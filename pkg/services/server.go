@@ -1,41 +1,53 @@
-package pkg
+package services
 
 import (
+	"github.com/gin-gonic/gin/json"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-
-	"github.com/stellar/go/keypair"
+	"time"
 )
 
-type ApplicationConfig struct {
-	MasterKey *keypair.Full
-}
-type ApplicationRepositoryOptions interface {
-	Config() *ApplicationConfig
+type ClientConfiguration struct {
+	AssetName     string      `json:"assetName"`
+	IssuerAddress string      `json:"issuerAddress"`
+	Candidates    []Candidate `json:"candidates"`
 }
 
-func walletHandler(w http.ResponseWriter, r *http.Request) {
+func configurationHandler(configuration Configuration) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			{
+				// Create new keypair and asking for XLM from Steller dev network
+				w.WriteHeader(http.StatusOK)
+				configJSON, _ := json.Marshal(ClientConfiguration{
+					IssuerAddress: configuration.IssuerAddress,
+					Candidates:    configuration.Candidates,
+					AssetName:     configuration.AssetName,
+				})
+				if _, err := w.Write(configJSON); err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+				}
 
-	switch r.Method {
-	case "POST":
-		{
-			// Create new keypair and asking for XLM from Steller dev network
+			}
+		default:
+			{
+				w.WriteHeader(http.StatusMethodNotAllowed)
+			}
 		}
-	default:
-		{
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
+
 	}
-
 }
-func NewApplicationServer(config ApplicationConfig) {
+func NewApplicationServer(config Configuration) {
 
-	http.HandleFunc("/wallet", walletHandler)
-
+	http.HandleFunc("/configuration", configurationHandler(config))
 	target := "http://localhost:3001"
-	url, _ := url.Parse(target)
-	proxy := httputil.NewSingleHostReverseProxy(url)
+	viewURL, _ := url.Parse(target)
+	proxy := httputil.NewSingleHostReverseProxy(viewURL)
+	proxy.FlushInterval = 100 * time.Millisecond
 	http.HandleFunc("/", proxy.ServeHTTP)
-	http.ListenAndServe(":3000", nil)
+	if err := http.ListenAndServe(":3000", nil); err != nil {
+		panic(err)
+	}
 }

@@ -3,12 +3,13 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/gin-gonic/gin/json"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
+	"github.com/stellar/go/keypair"
+	"github.com/zapkub/react-distributed-ledger-workshop/pkg/services"
 	"net/http"
 	"os"
-
-	"github.com/stellar/go/keypair"
 )
 
 // Genesis cmd
@@ -26,16 +27,6 @@ func main() {
 	// Create new keypair
 	issuerKeypair, err := keypair.Random()
 	check(err)
-	f, _ := os.Create("./key")
-	w := bufio.NewWriter(f)
-
-	// Create new file and write seed key to file
-	{
-		fmt.Printf("%s \n", issuerKeypair.Address())
-		_, err := w.WriteString(issuerKeypair.Seed())
-		check(err)
-		check(w.Flush())
-	}
 
 	// Ask XLM from stellar dev network
 	{
@@ -62,8 +53,6 @@ func main() {
 
 	// Create Distributor account
 	distributorKeypair, err := keypair.Random()
-	fmt.Println(distributorKeypair.Address())
-	fmt.Println(distributorKeypair.Seed())
 	{
 		testNetClient := horizon.DefaultTestNetClient
 
@@ -72,13 +61,16 @@ func main() {
 			build.SourceAccount{AddressOrSeed: issuerKeypair.Address()},
 			build.TestNetwork,
 			build.AutoSequence{SequenceProvider: horizon.DefaultTestNetClient},
+			//build.SetOptions(
+			//	build.SetAuthRequired(),
+			//),
 			build.CreateAccount(
 				build.Destination{
 					AddressOrSeed: distributorKeypair.Address(),
 				},
 				// This mean XLM
 				build.NativeAmount{
-					Amount: "2",
+					Amount: "5000",
 				},
 			),
 			build.MemoText{
@@ -93,10 +85,10 @@ func main() {
 		resp, err := testNetClient.SubmitTransaction(txeB64)
 		check(err)
 
-		fmt.Printf("Create distributor account: %s\n", resp.Hash)
+		fmt.Printf("Create distributor account tx hash: %s\n", resp.Hash)
 	}
 
-	octofox201 := build.CreditAsset("OCTOFOXTG201", issuerKeypair.Address())
+	v4bpAsset := build.CreditAsset("V4BP", issuerKeypair.Address())
 	{
 
 		// Create Custom Asset
@@ -108,7 +100,7 @@ func main() {
 			},
 			build.AutoSequence{horizon.DefaultTestNetClient},
 			build.TestNetwork,
-			build.Trust(octofox201.Code, octofox201.Issuer, build.Limit("40")),
+			build.Trust(v4bpAsset.Code, v4bpAsset.Issuer, build.Limit("300000")),
 		)
 
 		check(err)
@@ -119,12 +111,23 @@ func main() {
 		resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txe64)
 		check(err)
 
-		fmt.Printf("Change distributor trust: %s \n", resp.Hash)
+		fmt.Printf("Change distributor trust tx hash: %s \n", resp.Hash)
 
 	}
 
+	// Issuer transfer custom asset to distributor
+	// and then invalidate issuer
+	// and create candidate account for 4 members
+	// - lisa
+	// - jennie
+	// - jisoo
+	// - rose
+
+	lisaKeypair, _ := keypair.Random()
+	jennieKeypair, _ := keypair.Random()
+	jisooKeypair, _ := keypair.Random()
+	roseKeypair, _ := keypair.Random()
 	{
-		// Issuer transfer custom asset to distributor
 
 		tx, err := build.Transaction(
 			build.SourceAccount{
@@ -133,26 +136,144 @@ func main() {
 			build.AutoSequence{horizon.DefaultTestNetClient},
 			build.TestNetwork,
 			build.Payment(
+
+				// Transfer to who
 				build.Destination{
 					AddressOrSeed: distributorKeypair.Address(),
 				},
+
+				// Asset to transfer
 				build.CreditAmount{
-					Code:   octofox201.Code,
+					Code:   v4bpAsset.Code,
 					Issuer: issuerKeypair.Address(),
-					Amount: "40",
+					Amount: "300000",
+				},
+			),
+
+			build.CreateAccount(
+				build.Destination{
+					AddressOrSeed: lisaKeypair.Address(),
+				},
+				build.NativeAmount{
+					Amount: "5",
+				},
+			),
+
+			build.CreateAccount(
+				build.Destination{
+					AddressOrSeed: jennieKeypair.Address(),
+				},
+				build.NativeAmount{
+					Amount: "5",
+				},
+			),
+
+			build.CreateAccount(
+				build.Destination{
+					AddressOrSeed: jisooKeypair.Address(),
+				},
+				build.NativeAmount{
+					Amount: "5",
+				},
+			),
+
+			build.CreateAccount(
+				build.Destination{
+					AddressOrSeed: roseKeypair.Address(),
+				},
+				build.NativeAmount{
+					Amount: "5",
+				},
+			),
+
+			build.SetOptions(
+				build.MasterWeight(0),
+			),
+
+			build.Trust(v4bpAsset.Code, v4bpAsset.Issuer, build.Limit("300000"),
+				build.SourceAccount{
+					AddressOrSeed: lisaKeypair.Address(),
+				},
+			),
+
+			build.Trust(v4bpAsset.Code, v4bpAsset.Issuer, build.Limit("300000"),
+				build.SourceAccount{
+					AddressOrSeed: jisooKeypair.Address(),
+				},
+			),
+
+			build.Trust(v4bpAsset.Code, v4bpAsset.Issuer, build.Limit("300000"),
+				build.SourceAccount{
+					AddressOrSeed: jennieKeypair.Address(),
+				},
+			),
+
+			build.Trust(v4bpAsset.Code, v4bpAsset.Issuer, build.Limit("300000"),
+				build.SourceAccount{
+					AddressOrSeed: roseKeypair.Address(),
 				},
 			),
 		)
 
 		check(err)
-		txe, err := tx.Sign(issuerKeypair.Seed())
-		check(err)
+		txe, err := tx.Sign(
+			issuerKeypair.Seed(),
+			lisaKeypair.Seed(),
+			jisooKeypair.Seed(),
+			jennieKeypair.Seed(),
+			roseKeypair.Seed(),
+		)
+
 		txe64, err := txe.Base64()
 		check(err)
 		resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txe64)
 		check(err)
-		fmt.Println(resp.Hash)
+		fmt.Printf("Send asset to distributor, create 4 candidate, and invalidate issuer account tx hash :%s\n", resp.Hash)
 
+	}
+
+	fmt.Printf(
+		"Distributor public: %s\nDistributor secret: %s\n",
+		distributorKeypair.Address(),
+		distributorKeypair.Seed(),
+	)
+
+	// Create new file and write seed key to file
+	{
+		fmt.Printf("%s \n", issuerKeypair.Address())
+
+		config := services.Configuration{
+			DistributorAddress: distributorKeypair.Address(),
+			DistributorSecret:  distributorKeypair.Seed(),
+			AssetName:          v4bpAsset.Code,
+			IssuerAddress:      issuerKeypair.Address(),
+			Candidates: []services.Candidate{
+				{
+					Address: lisaKeypair.Address(),
+					Name:    "Lisa",
+				},
+				{
+					Address: jisooKeypair.Address(),
+					Name:    "Jisoo",
+				},
+				{
+					Address: roseKeypair.Address(),
+					Name:    "Rosé",
+				},
+				{
+					Address: jennieKeypair.Address(),
+					Name:    "Jennie",
+				},
+			},
+		}
+
+		configJSON, err := json.Marshal(config)
+
+		f, _ := os.Create("./config.json")
+		w := bufio.NewWriter(f)
+		_, err = w.WriteString(string(configJSON))
+		check(err)
+		check(w.Flush())
 	}
 
 }
