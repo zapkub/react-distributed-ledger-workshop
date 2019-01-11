@@ -3,10 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/stellar/go/build"
-	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
-	"github.com/zapkub/react-distributed-ledger-workshop/pkg/services"
 	"runtime"
 	"time"
 )
@@ -67,63 +64,10 @@ func main() {
 	fmt.Println(result.seed)
 	fmt.Println("Setup user account and trust asset")
 
-	configuration := services.ReadConfiguration()
-
 	{
 		// Open an account
 		// change trust
 		// give vote point
-
-		tx, err := build.Transaction(
-			build.SourceAccount{
-				AddressOrSeed: configuration.DistributorAddress,
-			},
-			build.TestNetwork,
-			build.AutoSequence{
-				SequenceProvider: horizon.DefaultTestNetClient,
-			},
-
-			build.CreateAccount(
-				build.Destination{
-					AddressOrSeed: result.addr,
-				},
-				build.NativeAmount{
-					Amount: "20",
-				},
-			),
-
-			build.Trust(
-				configuration.AssetName,
-				configuration.IssuerAddress,
-				build.SourceAccount{
-					AddressOrSeed: result.addr,
-				},
-			),
-
-			build.Payment(
-				build.CreditAmount{
-					Amount: "20",
-					Code:   configuration.AssetName,
-					Issuer: configuration.IssuerAddress,
-				},
-				build.Destination{
-					AddressOrSeed: result.addr,
-				},
-			),
-		)
-		check(err)
-
-		txe, err := tx.Sign(
-			configuration.DistributorSecret,
-			result.seed,
-		)
-		check(err)
-
-		txe64, err := txe.Base64()
-		check(err)
-		resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txe64)
-		check(err)
-		fmt.Printf("Tx complete!! Hash, %s\n", resp.Hash)
 
 	}
 

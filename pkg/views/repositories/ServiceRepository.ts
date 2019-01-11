@@ -13,15 +13,9 @@ export interface ServiceRepository {
 }
 
 export class DefaultServiceRepository implements ServiceRepository{
+    private configURL = "/configuration"
     async getConfiguration(): Promise<GetConfigurationResponseBody> {
-            const resp = await fetch("/configuration")
-            const result = await resp.json()
-            return {
-                assetName: result.assetName,
-                candidates: result.candidates,
-                distributorAddress: result.distributorAddress,
-                issuerAddress: result.issuerAddress
-            }
+        throw new Error("Implement me")
     }
 }
 

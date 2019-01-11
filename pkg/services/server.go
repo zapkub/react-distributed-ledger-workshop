@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/gin-gonic/gin/json"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -16,27 +15,7 @@ type ClientConfiguration struct {
 
 func configurationHandler(configuration Configuration) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			{
-				// Create new keypair and asking for XLM from Steller dev network
-				w.WriteHeader(http.StatusOK)
-				configJSON, _ := json.Marshal(ClientConfiguration{
-					IssuerAddress: configuration.IssuerAddress,
-					Candidates:    configuration.Candidates,
-					AssetName:     configuration.AssetName,
-				})
-				if _, err := w.Write(configJSON); err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-				}
-
-			}
-		default:
-			{
-				w.WriteHeader(http.StatusMethodNotAllowed)
-			}
-		}
-
+		panic("Implement me")
 	}
 }
 func NewApplicationServer(config Configuration) {
