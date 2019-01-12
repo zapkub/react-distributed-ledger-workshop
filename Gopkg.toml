@@ -25,6 +25,14 @@
 #   unused-packages = true
 
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/stellar/go"
+
+[[constraint]]
+  branch = "boiler"
+  name = "github.com/zapkub/react-distributed-ledger-workshop"
+
 [prune]
   go-tests = true
   unused-packages = true
