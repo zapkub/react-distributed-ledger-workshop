@@ -1,4 +1,4 @@
-package services
+package utils
 
 import (
 	"encoding/json"
@@ -10,8 +10,8 @@ type Candidate struct {
 	Address string `json:"address"`
 }
 type Configuration struct {
-	DistributorAddress string `json:"distributorAddress"`
-	DistributorSecret  string `json:"distributorSecret"`
+	DistributorAddress string `json:"distributorAddress,omitempty"`
+	DistributorSecret  string `json:"distributorSecret,omitempty"`
 
 	AssetName     string `json:"assetName"`
 	IssuerAddress string `json:"issuerAddress"`
@@ -21,7 +21,7 @@ type Configuration struct {
 
 func ReadConfiguration() Configuration {
 
-	if result, err := ioutil.ReadFile("./config.json"); err != nil {
+	if result, err := ioutil.ReadFile("./config.distributor.json"); err != nil {
 		panic(err)
 	} else {
 		var configuration Configuration

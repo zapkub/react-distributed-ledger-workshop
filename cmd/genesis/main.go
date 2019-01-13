@@ -2,12 +2,12 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin/json"
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
-	"github.com/zapkub/react-distributed-ledger-workshop/pkg/services"
+	"github.com/zapkub/react-distributed-ledger-workshop/pkg/utils"
 	"net/http"
 	"os"
 )
@@ -242,12 +242,12 @@ func main() {
 	{
 		fmt.Printf("%s \n", issuerKeypair.Address())
 
-		config := services.Configuration{
+		config := utils.Configuration{
 			DistributorAddress: distributorKeypair.Address(),
 			DistributorSecret:  distributorKeypair.Seed(),
 			AssetName:          v4bpAsset.Code,
 			IssuerAddress:      issuerKeypair.Address(),
-			Candidates: []services.Candidate{
+			Candidates: []utils.Candidate{
 				{
 					Address: lisaKeypair.Address(),
 					Name:    "Lisa",
@@ -267,13 +267,33 @@ func main() {
 			},
 		}
 
-		configJSON, err := json.Marshal(config)
+		// Write config file
+		{
+			configJSON, err := json.Marshal(config)
 
-		f, _ := os.Create("./config.json")
-		w := bufio.NewWriter(f)
-		_, err = w.WriteString(string(configJSON))
-		check(err)
-		check(w.Flush())
+			f, _ := os.Create("./config.distributor.json")
+			w := bufio.NewWriter(f)
+			_, err = w.WriteString(string(configJSON))
+			check(err)
+			check(w.Flush())
+		}
+
+		// Write config for client (No distributor information)
+		{
+			clientConfig := utils.Configuration{
+				Candidates:    config.Candidates,
+				AssetName:     config.AssetName,
+				IssuerAddress: config.IssuerAddress,
+			}
+
+			configJSON, err := json.Marshal(clientConfig)
+			f, _ := os.Create("./config.client.json")
+			w := bufio.NewWriter(f)
+			_, err = w.WriteString(string(configJSON))
+			check(err)
+			check(w.Flush())
+		}
+
 	}
 
 }

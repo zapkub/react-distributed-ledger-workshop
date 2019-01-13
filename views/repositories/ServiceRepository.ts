@@ -14,8 +14,15 @@ export interface ServiceRepository {
 
 export class DefaultServiceRepository implements ServiceRepository{
     async getConfiguration(): Promise<GetConfigurationResponseBody> {
-            const resp = await fetch("/configuration")
-            const result = await resp.json()
+
+
+            // import directly into ui bundle
+            const result = require('../../config.client.json')
+            console.log(result)
+    // or serve by configuration server
+    // const resp = await fetch("/configuration")
+    // const result = await resp.json()
+
             return {
                 assetName: result.assetName,
                 candidates: result.candidates,

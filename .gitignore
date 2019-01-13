@@ -6,3 +6,5 @@ key
 *.js.map
 config.json
 .next
+config.distributor.json
+config.client.json

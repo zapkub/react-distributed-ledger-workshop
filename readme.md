@@ -21,3 +21,30 @@
   - เริ่มต้น ร่วมกันสร้าง Issuer และ Custom Asset เพื่อใช้ร่วมกัน
   - สร้าง Transaction เพื่อส่ง Asset ภายในระบบ
   - สร้าง Transaction เพื่อส่ง Asset ข้ามระบบ
+
+
+
+# Workshop Development Instruction
+
+   1. Genesis data ประกอบด้วย
+        - Account สำหรับออก Asset เพื่อใช้โหวต
+        - Account สำหรับเก็บ Asset ที่สร้างมาเพื่อใช้โหวต
+        - Account สำหรับ candidate สี่คน
+        - Asset ที่ใช้โหวต
+        ```
+            $ make genesis
+        ``` 
+        **ผลลัพธ์** จะได้ไฟล์ `config.distributor.json` และ `config.client.json`
+   
+   2. Customer account generate
+        - สร้าง Account ใหม่
+        - สร้าง Trustline ของ Account นี้ไปที่ Issuer ของ Asset ที่ใช้โหวต
+        ```
+        $ make generate
+        ```
+   
+   3. จาก Customer account นำ Account และ Secret ไปใช้โหวตที่ Client DAP
+        ```$xslt
+            $ make views
+        ```
+   

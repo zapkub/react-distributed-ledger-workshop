@@ -6,7 +6,7 @@ import (
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
-	"github.com/zapkub/react-distributed-ledger-workshop/pkg/services"
+	"github.com/zapkub/react-distributed-ledger-workshop/pkg/utils"
 	"runtime"
 	"time"
 )
@@ -39,7 +39,7 @@ func Run(c chan *Result, in string) {
 }
 func main() {
 
-	prefix := flag.String("p", "BP", "Prefix to find")
+	prefix := flag.String("p", "BPK", "Prefix to find")
 
 	flag.Parse()
 	var result *Result
@@ -67,7 +67,7 @@ func main() {
 	fmt.Println(result.seed)
 	fmt.Println("Setup user account and trust asset")
 
-	configuration := services.ReadConfiguration()
+	configuration := utils.ReadConfiguration()
 
 	{
 		// Open an account

@@ -1,8 +1,13 @@
+prepare:
+	@GO111MODULE=on go mod download
+
+generate:
+	go run cmd/generate/main.go
+genesis:
+	go run cmd/genesis/main.go
 
 
-
+.PHONY: views
 
 views:
-	cd pkg/views&&yarn next -p 3001
-server:
-	go run cmd/server/main.go
+	cd views&&yarn next -p 3000
