@@ -26,6 +26,13 @@
 
 # Workshop Development Instruction
 
+### Setup
+- ติดตั้ง Golang **version 1.11** ขึ้นไป
+- ติดตั้ง NodeJS **version 10** ขึ้นไป
+- Clone repository ไปที่  `$GOPATH/src`
+- ติดตั้ง Yarn `npm install -g yarn` (อาจจะต้องใช้ Sudo)
+- Run `make prepare` ที่ Project Root
+
    1. Genesis data ประกอบด้วย
         - Account สำหรับออก Asset เพื่อใช้โหวต
         - Account สำหรับเก็บ Asset ที่สร้างมาเพื่อใช้โหวต

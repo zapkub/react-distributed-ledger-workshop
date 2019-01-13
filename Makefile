@@ -2,9 +2,9 @@ prepare:
 	@GO111MODULE=on go mod download
 
 generate:
-	go run cmd/generate/main.go
+	@GO111MODULE=on go run cmd/generate/main.go
 genesis:
-	go run cmd/genesis/main.go
+	@GO111MODULE=on go run cmd/genesis/main.go
 
 
 .PHONY: views
