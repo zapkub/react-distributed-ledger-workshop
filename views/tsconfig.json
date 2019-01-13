@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "strictFunctionTypes": true,
+    "types": ["node", "jest"],
+    "experimentalDecorators": true,
+    "noUnusedLocals": true,
+    "allowJs": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "jsx": "react",
+    "target": "es2015",
+    "lib": ["es2015", "dom", "esnext.asynciterable"],
+    "plugins": [ ]
+  },
+  "exclude": [".next"]
+}
