@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"runtime"
+	"time"
+
 	"github.com/stellar/go/build"
 	"github.com/stellar/go/clients/horizon"
 	"github.com/stellar/go/keypair"
 	"github.com/zapkub/react-distributed-ledger-workshop/pkg/utils"
-	"runtime"
-	"time"
 )
 
 type Result struct {
@@ -62,9 +63,7 @@ func main() {
 	}
 
 	result = <-found
-	fmt.Println("Hash found !!")
-	fmt.Println(result.addr)
-	fmt.Println(result.seed)
+	fmt.Println("Hash found !! Please use this Address to vote")
 	fmt.Println("Setup user account and trust asset")
 
 	configuration := utils.ReadConfiguration()
@@ -123,7 +122,10 @@ func main() {
 		check(err)
 		resp, err := horizon.DefaultTestNetClient.SubmitTransaction(txe64)
 		check(err)
-		fmt.Printf("Tx complete!! Hash, %s\n", resp.Hash)
+		fmt.Printf("Tx complete!! Hash, %s\n\n", resp.Hash)
+
+		fmt.Printf("public: %s\n", result.addr)
+		fmt.Printf("secret: %s \n\n", result.seed)
 
 	}
 
